@@ -2,34 +2,35 @@
 	{ "id": 1,
 		"invoiceNumber": 123234,
 		"issueDate": "2021-02-15",
+		"issueTime": "14:30:08",
 		"includingTax": false,
+		"priceWithoutTax": 1849.90,
 		"tax":0,
-		"totalAmount": 1849.90,
+		"totalPrice": 1849.90,
 		"issuerDetails": {
 			"name": "Muzeum Andyho Warhola",
 			"streetAddress": "Medzilaborce 10",
 			"city": "Medzilaborce",
 			"zipCode": "12345",
 			"country": "Slovakia",
-			"phone": "+42111222333",
+			"phoneNumber": "+42111222333",
 			"email": "muzeum@medzilaborce.com"
 		},
-		"CustomerDetails": {
+		"customerDetails": {
 			"name":"Andy Warhol",
 			"companyName": null,
-			"individual": true,
 			"streetAddress": "Medzilaborce 20",
 			"city": "Medzilaborce",
 			"zipCode": "12345",
 			"country": "Slovakia",
 			"phoneNumber": "+421444555666",
-			"email": "a.warhol@gmail.com",
+			"email": "a.warhol@gmail.com"
 		},
-		"Description": [
-			{"itemName": "ticket", "amount":1500},
-			{"itemName": "cheese popcorn", "amount": 300},
-			{"itemName": "water", "amount": 49.90},
-			{"itemName": "tax", "amount": 0}
+		"description": [
+			{"catalogId": "1AB", "itemName": "ticket", "price":1500},
+			{"catalogId": "2AB", "itemName": "cheese popcorn", "price": 300},
+			{"catalogId": "3AB", "itemName": "water", "price": 49.90},
+			{"catalogId": "4AB", "itemName": "tax", "price": 0}
 		],
 		"additionalInformation": "Thank you for your purchase"
 	}
