@@ -1,0 +1,5 @@
+-e .
+faker~=8.1.0
+flask~=1.1.1
+psycopg2==2.8.6
+pymongo==3.11.3
