@@ -45,7 +45,7 @@ def postgres_connection(data):
     print("PGSQL Insert example: ")
 
     psql_conn = PostgreSqlConnector()
-    c = psql_conn.connector(host='localhost', port=5432, db_name='postgres', username='pavolp', password='pavol1001')
+    c = psql_conn.connector(host='localhost', port=5432, db_name='postgres', username='', password='')
     cur = c.cursor()
     start = time.time()
     cur.execute("INSERT into invoices (invoices_json) VALUES (%s)", [data])
