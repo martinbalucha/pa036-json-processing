@@ -1,0 +1,26 @@
+{
+  "postgres": {
+    "CREATES": [],
+    "SELECTS": [
+      "SELECT * FROM invoices_table WHERE invoiceNumber > 100000",
+      "SELECT 2",
+      "SELECT 3"
+    ],
+    "INDEXES": [],
+    "DELETES": [],
+    "UPDATES": []
+  },
+  "mongo": {
+    "CREATES": [],
+    "SELECTS": {
+      "queryType": "AGGREGATE",
+      "queries":
+      ["db.invoices_table.find({1})",
+        "db.invoices_table.find({2})"]
+    },
+    "INDEXES": [],
+    "DELETES": [],
+    "UPDATES": []
+  }
+}
+
