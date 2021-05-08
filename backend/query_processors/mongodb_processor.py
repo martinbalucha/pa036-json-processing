@@ -13,13 +13,20 @@ class MongoDbProcessor(QueryProcessor):
         :param connector: DB connector
         """
 
+        super().__init__()
         self.connector = connector
-        self.database = connector[""]
-        self.table = self.database["invoice"]
 
     def run_query(self, query, params=None):
         query = str.lower(query)
-        operation = getattr(self.table, query)
+
+        host = self.parser.get("mongodb", "host")
+        database = self.parser.get("mongodb", "database")
+        port = int(self.parser.get("mongodb", "port"))
+
+        connection = self.connector.connector(host, port)
+        database = connection[database]
+        table = database["invoice"]
+        operation = getattr(table, query)
 
         if operation is None:
             raise ValueError(f"Mongo Client does not provide method {query}")

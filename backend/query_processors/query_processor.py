@@ -1,10 +1,22 @@
+from abc import ABC, abstractmethod
+from configparser import ConfigParser
 
 
-class QueryProcessor:
+class QueryProcessor(ABC):
     """
-    An interface for query processors
+    An abstract class for query processors
     """
 
+    @abstractmethod
+    def __init__(self):
+        """
+        Ctor that reads the configuration file
+        """
+
+        self.parser = ConfigParser()
+        self.parser.read("../config.ini")
+
+    @abstractmethod
     def run_query(self, query, params=None):
         """
         Runs a query with given parameters

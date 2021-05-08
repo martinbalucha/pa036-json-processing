@@ -6,7 +6,7 @@
       "SELECT 2",
       "SELECT 3"
     ],
-    "INDEXES": [],
+    "INDEXES": ["CREATE INDEX datagin ON invoice USING gin(invoice)"],
     "DELETES": [],
     "UPDATES": []
   },
