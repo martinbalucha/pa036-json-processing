@@ -2,4 +2,43 @@
 {% block title %} Statistics of JSON processing {% endblock %}
 {% block content %}
     <h2>Statistics of JSON processing by PostgreSQL and MongoDB</h2>
+    <div class="content-section">
+        <form method="GET">
+            <fieldset class="form-group">
+                <div class="form-group">
+                    <a href="{{ url_for('statistics.create_indices') }}">
+                        <button type="button" class="btn btn-success">Create indices</button>
+                    </a>
+                </div>
+                <div class="form-group">
+                    <a href="{{ url_for('statistics.drop_indices') }}">
+                        <button type="button" class="btn btn-success">Drop indices</button>
+                    </a>
+                </div>
+
+                {% if statistics and statistics|length > 0 %}
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Query type</th>
+                                <th scope="col">Postgres json time</th>
+                                <th scope="col">Postgres jsonb time</th>
+                                <th scope="col">MongoDB json time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for statistic in statistics %}
+                                <tr>
+                                    <td>{{ statistic.query_type }}</td>
+                                    <td>{{ statistic.postgres_json_time }}</td>
+                                    <td>{{ statistic.postgres_jsonb_time }}</td>
+                                    <td>{{ statistic.mongodb_time }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </fieldset>
+        </form>
+    </div>
 {% endblock %}
