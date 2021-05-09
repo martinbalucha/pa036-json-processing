@@ -4,9 +4,9 @@
 		"issueDate": "2021-02-15",
 		"issueTime": "14:30:08",
 		"includingTax": false,
-		"priceWithoutTax": 1849.90,
+		"priceWithoutTax": 1849,
 		"tax":0,
-		"totalPrice": 1849.90,
+		"totalPrice": 1849,
 		"issuerDetails": {
 			"name": "Muzeum Andyho Warhola",
 			"streetAddress": "Medzilaborce 10",
@@ -29,7 +29,42 @@
 		"description": [
 			{"catalogId": "1AB", "itemName": "ticket", "price":1500},
 			{"catalogId": "2AB", "itemName": "cheese popcorn", "price": 300},
-			{"catalogId": "3AB", "itemName": "water", "price": 49.90},
+			{"catalogId": "3AB", "itemName": "water", "price": 49},
+			{"catalogId": "4AB", "itemName": "tax", "price": 0}
+		],
+		"additionalInformation": "Thank you for your purchase"
+	},
+	{ "id": 2,
+		"invoiceNumber": 123234,
+		"issueDate": "2021-02-15",
+		"issueTime": "14:30:08",
+		"includingTax": false,
+		"priceWithoutTax": 1849,
+		"tax":0,
+		"totalPrice": 1849,
+		"issuerDetails": {
+			"name": "Muzeum Andyho Warhola",
+			"streetAddress": "Medzilaborce 10",
+			"city": "Medzilaborce",
+			"zipCode": "12345",
+			"country": "Slovakia",
+			"phoneNumber": "+42111222333",
+			"email": "muzeum@medzilaborce.com"
+		},
+		"customerDetails": {
+			"name":"Andy Warhol",
+			"companyName": null,
+			"streetAddress": "Medzilaborce 20",
+			"city": "Medzilaborce",
+			"zipCode": "12345",
+			"country": "Slovakia",
+			"phoneNumber": "+421444555666",
+			"email": "a.warhol@gmail.com"
+		},
+		"description": [
+			{"catalogId": "1AB", "itemName": "ticket", "price":1500},
+			{"catalogId": "2AB", "itemName": "cheese popcorn", "price": 300},
+			{"catalogId": "3AB", "itemName": "water", "price": 49},
 			{"catalogId": "4AB", "itemName": "tax", "price": 0}
 		],
 		"additionalInformation": "Thank you for your purchase"
