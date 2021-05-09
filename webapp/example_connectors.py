@@ -1,15 +1,14 @@
 import json
 import time
+import ijson
 
-from psycopg2.extras import Json
+from psycopg2.extras import Json, execute_values
 from backend.connectors.mongodb import MongoDbConnector
 from backend.connectors.postgres_connector import PostgreSqlConnector
 
 
-with open('webapp/data/invoice_example.json') as f:
-    file_data = json.load(f)[0]
+# jsonified_data_for_postgres = Json(file_data)
 
-jsonified_data_for_postgres = Json(file_data)
 
 # Mongo
 def mongo_connection(data):
@@ -34,8 +33,7 @@ def mongo_connection(data):
 
 
 # Postgres
-
-def postgres_connection(data):
+def postgres_connection():
     """
     Postgres must be install and you HAVE TO create database manually.
 
@@ -45,15 +43,33 @@ def postgres_connection(data):
     print("PGSQL Insert example: ")
 
     psql_conn = PostgreSqlConnector()
-    c = psql_conn.connector(host='localhost', port=5432, db_name='postgres', username='', password='')
+    c = psql_conn.connector(host='localhost', port=5432, db_name='postgres', username='postgres', password='admin')
     cur = c.cursor()
-    start = time.time()
-    cur.execute("INSERT into invoices (invoices_json) VALUES (%s)", [data])
-    c.commit()
-    end = time.time()
+    # start = time.time()
+    # cur.execute("INSERT into invoice (data) VALUES (%s)", [data])
+    # c.commit()
+    # end = time.time()
+    #
+    # print(end - start)
+    return cur
 
-    print(end - start)
+
+cursor = postgres_connection()
+with open('webapp/data/fake_invoices.json', encoding='utf-8') as f:
+    items = ijson.items(f, "item")
+    counter = 0
+    json_array = []
+    for item in items:
+        json_array.append(item)
+        if counter == 10:
+            break
+        counter += 1
+    execute_values(cursor,
+                   "INSERT INTO invoice (data) VALUES %s",
+                   json_array)
+
+
 
 # TODO If you change the order of execution (if mongo runs first), it crashes. We must fix this.
-postgres_connection(jsonified_data_for_postgres)
-mongo_connection(file_data)
+
+# mongo_connection(file_data)

@@ -8,7 +8,7 @@
     ],
     "INDEXES": ["CREATE INDEX datagin ON invoice USING gin(invoice)"],
     "DELETES": [],
-    "UPDATES": []
+    "UPDATES": [],
   },
   "mongo": {
     "CREATES": [],
