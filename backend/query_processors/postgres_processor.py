@@ -24,9 +24,9 @@ class PostgresProcessor(QueryProcessor):
         password = self.parser.get("postgres", "password")
 
         with self.connector.connector(host, port, username, password, db_name=database) as connection:
-
             with connection.cursor() as cursor:
                 start_time = time()
                 cursor.execute(query, params)
+                connection.commit()
                 end_time = time()
                 return end_time - start_time
