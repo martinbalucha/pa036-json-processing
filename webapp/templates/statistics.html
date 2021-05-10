@@ -3,18 +3,26 @@
 {% block content %}
     <h2>Statistics of JSON processing by PostgreSQL and MongoDB</h2>
     <div class="content-section">
-        <form method="GET">
+        <form method="POST">
             <fieldset class="form-group">
                 <div class="form-group">
                     <a href="{{ url_for('statistics.create_indices') }}">
-                        <button type="button" class="btn btn-success">Create indices</button>
+                        <button type="button" class="btn btn-info">Create indices</button>
                     </a>
-                </div>
-                <div class="form-group">
                     <a href="{{ url_for('statistics.drop_indices') }}">
-                        <button type="button" class="btn btn-success">Drop indices</button>
+                        <button type="button" class="btn btn-info">Drop indices</button>
                     </a>
                 </div>
+
+                <div class="form-group">
+                    <label>Select the number of invoices</label>
+                    <select class="form-select" aria-label="Default select example" name="invoice_count">
+                        <option value="10000" selected>10 000</option>
+                        <option value="100000">100 000</option>
+                        <option value="1000000">1 000 000</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Run queries</button>
 
                 {% if statistics and statistics|length > 0 %}
                     <table class="table table-hover">
