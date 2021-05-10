@@ -7,7 +7,7 @@ Generate fake .json document of invoices.
 To change the number of generated invoices, change the parameter of NUMBER_OF_INVOICES.
 """
 NUMBER_OF_INVOICES = 2000000
-FILE_NAME = 'fake_invoices.json'
+FILE_NAME = 'fake_invoices_no_decimal.json'
 
 fake = Faker(['cs_CZ'])
 
@@ -18,7 +18,7 @@ def fake_json_generator(length=1000):
         including_tax = fake.boolean(chance_of_getting_true=75)
 
         if including_tax:
-            tax = round(0.2 * price_without_tax, 2)
+            tax = round(0.2 * price_without_tax)
         else:
             tax = 0
 
@@ -65,7 +65,7 @@ def fake_json_generator(length=1000):
 start = time.time()
 fake_data = fake_json_generator(NUMBER_OF_INVOICES)
 
-with open(f"../data/{FILE_NAME}", 'w') as output:
+with open(f"../data/{FILE_NAME}", 'w', encoding='utf-8') as output:
     output.write('[')
     for invoice in fake_data:
         json.dump(invoice, output, indent=4, ensure_ascii=False)
