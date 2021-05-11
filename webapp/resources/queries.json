@@ -3,9 +3,12 @@
     "invoice": {
       "INSERTS": "INSERT INTO invoice (data) VALUES %s",
       "SELECTS": [
-        {"query": "SELECT count(*) FROM public.invoice WHERE id in (SELECT id FROM public.invoice WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))", "description": "Select number 1"},
-        {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name", "description": "Select number 2"},
-        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice) AS x WHERE x.price > 8500", "description": "Select number 3"}
+        {"query": "SELECT count(*) FROM public.invoice WHERE id in (SELECT id FROM public.invoice WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))",
+          "description": "Select number of issuers from city of Brno."},
+        {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name",
+          "description": "Select name and country of the customer who paid tax"},
+        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice) AS x WHERE x.price > 8500",
+          "description": "Select customer details and item's description where at least one bought item was more expensive than 8500"}
       ],
       "INDEXES": "",
       "DELETES": [],
@@ -14,9 +17,12 @@
     "invoice_binary": {
       "INSERTS": "INSERT INTO invoice_binary (data) VALUES %s",
       "SELECTS": [
-        {"query": "SELECT count(*) FROM public.invoice_binary WHERE id in (SELECT id FROM public.invoice_binary WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))", "description": "Select number 1"},
-        {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice_binary WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name", "description": "Select number 2"},
-        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice_binary) AS x WHERE x.price > 8500", "description": "Select number 3"}
+        {"query": "SELECT count(*) FROM public.invoice_binary WHERE id in (SELECT id FROM public.invoice_binary WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))",
+          "description": "Select number of issuers from city of Brno."},
+        {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice_binary WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name",
+          "description": "Select name and country of the customer who paid tax"},
+        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice_binary) AS x WHERE x.price > 8500",
+          "description": "Select customer details and item's description where at least one bought item was more expensive than 8500"}
       ],
       "INDEXES": "CREATE INDEX jsonbIndex ON invoice_binary USING gin (data)",
       "DROP_INDEXES": "DROP INDEX jsonbIndex",
@@ -26,12 +32,56 @@
   },
   "mongo": {
     "SELECTS": {
-      "queryType": "AGGREGATE",
       "queries": [
-        "db.invoices_table.find({1})",
-        "db.invoices_table.find({2})"
+        {"raw": "db.invoices_table.find({\"issuerDetails.city\":\"Brno\"}).count()",
+          "filter": "{\"issuerDetails.city\":\"Brno\"}",
+          "count": true,
+          "description": "Select number of issuers from city of Brno."},
+        {"raw": "db.invoices_table.find({\"includingTax\":true}, {\"customerDetails.name\":1, \"customerDetails.country\":1})",
+          "filter": "{\"includingTax\":true}, {\"customerDetails.name\":1, \"customerDetails.country\":1}",
+          "count": false,
+          "description": "Select name and country of the customer who paid tax"},
+        {"raw": "db.invoices_table.find({\"description.price\": {\"$gt\":8500}}, {\"customerDetails\":1, \"description\":1})",
+          "filter": "{\"description.price\": {\"$gt\":8500}}, {\"customerDetails\":1, \"description\":1}",
+          "count": false,
+          "description": "Select customer details and item's description where at least one bought item was more expensive than 8500"}
       ]
     },
+    "UPDATES": {
+      "queries": [
+        {"raw": "db.invoices_table.updateMany({\"includingTax\":false},{\"$set\":{\"additionalInformation\":\"Tax Not Included\"}})",
+          "filter": "{\"includingTax\":false}",
+          "update": "{\"$set\":{\"additionalInformation\":\"Tax Not Included\"}}",
+          "description": "Set additional info to 'Tax Not Included' for invoices without tax."},
+        {"raw": "db.invoices_table.updateMany({\"includingTax\":true},{\"$inc\":{\"totalPrice\":5000}})",
+          "filter": "{\"includingTax\":true}",
+          "update": "{\"$inc\":{\"totalPrice\":5000}}",
+          "description": "Increase price by 5000 of all invoices with tax."
+        },
+        {"raw": "db.invoices_table.updateMany({\"issueDate\": {\"$lt\":\"2015\"}}, {\"$set\": {\"issueTime\": \"12:00:00\", \"additionalInformation\":\"ARCHIVED\"}})",
+          "filter": "{\"issueDate\": {\"$lt\":\"2015\"}}",
+          "update": "{\"$set\": {\"issueTime\": \"12:00:00\", \"additionalInformation\":\"ARCHIVED\"}}",
+          "description": "Set issue time of every invoice issued before 2015 to 12:00:00 and additionalInformation to ARCHIVED"
+        }
+      ]
+    },
+    "DELETES": {
+      "queries": [
+        {"raw": "db.invoices_table.deleteMany({\"issuerDetails.country\": \"Spojené státy americké\"})",
+          "filter": "{\"issuerDetails.country\": \"Spojené státy americké\"}",
+          "description": "Delete all rows where issuer contry of origin is USA."
+        },
+        {"raw": "db.invoices_table.deleteMany({\"description.price\": {\"$lt\":4500}})",
+          "filter": "{\"description.price\": {\"$lt\":4500}}",
+          "description": "Delete all rows where price of at least one item was smaller than 4500."
+        },
+        {"raw": "db.invoices_table.deleteMany({\"includingTax\": true, \"priceWithoutTax\": {\"$gt\":8000}})",
+          "filter": "{\"includingTax\": true, \"priceWithoutTax\": {\"$gt\":8000}}",
+          "description": "Delete all rows where tax is included and priceWithoutTax is greater than 8000."
+        }
+      ]
+    },
+
     "INDEXES": {
       "queryType": "create_index",
       "parameter": "id"
@@ -39,9 +89,7 @@
     "DROP_INDEXES": {
       "queryType": "drop_index",
       "parameter": "id_1"
-    },
-    "DELETES": [],
-    "UPDATES": []
+    }
   }
 }
 
