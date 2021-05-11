@@ -5,7 +5,7 @@ from backend.connectors.connector_interface import ConnectorInterface
 
 class MongoDbConnector(ConnectorInterface):
     """
-    CLass implementing the ConnectorInterface class and creating the connector instance to the MongoDB database
+    Class implementing the ConnectorInterface class and creating the connector instance to the MongoDB database
     """
 
     def connector(self, host: str, port: int, username: str = None, password: str = None, **kwargs):

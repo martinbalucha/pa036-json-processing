@@ -1,26 +1,51 @@
 {
   "postgres": {
-    "CREATES": [],
-    "SELECTS": [
-      "SELECT * FROM invoices_table WHERE invoiceNumber > 100000",
-      "SELECT 2",
-      "SELECT 3"
-    ],
-    "INDEXES": [],
-    "DELETES": [],
-    "UPDATES": []
+    "invoice": {
+      "INSERTS": "INSERT INTO invoice (data) VALUES %s",
+      "SELECTS": [
+        {"query": "SELECT count(*) FROM public.invoice WHERE id in (SELECT id FROM public.invoice WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))", "description": "Select number 1"},
+        {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name", "description": "Select number 2"},
+        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice) AS x WHERE x.price > 8500", "description": "Select number 3"}
+      ],
+      "INDEXES": "",
+      "DELETES": [],
+      "UPDATES": []
+    },
+    "invoice_binary": {
+      "INSERTS": "INSERT INTO invoice_binary (data) VALUES %s",
+      "SELECTS": [
+        {"query": "SELECT count(*) FROM public.invoice_binary WHERE id in (SELECT id FROM public.invoice_binary WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))", "description": "Select number 1"},
+        {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice_binary WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name", "description": "Select number 2"},
+        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice_binary) AS x WHERE x.price > 8500", "description": "Select number 3"}
+      ],
+      "INDEXES": "CREATE INDEX jsonbIndex ON invoice_binary USING gin (data)",
+      "DROP_INDEXES": "DROP INDEX jsonbIndex",
+      "DELETES": [],
+      "UPDATES": []
+    }
   },
   "mongo": {
-    "CREATES": [],
     "SELECTS": {
       "queryType": "AGGREGATE",
-      "queries":
-      ["db.invoices_table.find({1})",
-        "db.invoices_table.find({2})"]
+      "queries": [
+        "db.invoices_table.find({1})",
+        "db.invoices_table.find({2})"
+      ]
     },
-    "INDEXES": [],
+    "INDEXES": {
+      "queryType": "create_index",
+      "parameter": "id"
+    },
+    "DROP_INDEXES": {
+      "queryType": "drop_index",
+      "parameter": "id_1"
+    },
     "DELETES": [],
     "UPDATES": []
   }
 }
+
+
+
+
 
