@@ -1,29 +1,21 @@
-
-from pathlib import Path
 from flask import Blueprint, render_template, flash, redirect, url_for, request
-from backend.dto.result_dto import ResultDto
-from webapp.statistics.utils import instantiate_processors, manage_indices
+from webapp.statistics.utils import manage_indices, run_queries, run_deletes
 
 statistics = Blueprint("statistics", __name__)
 
-json_path = Path(__file__).resolve().parent.joinpath('..', '..', 'webapp', 'data', 'invoice_example.json')
+
+@statistics.route("/delete_all")
+def delete_all():
+    run_deletes()
+    flash("All records were successfully deleted", "success")
+    return redirect(url_for("statistics.display_statistics"))
 
 
 @statistics.route("/statistics", methods=["GET", "POST"])
 def display_statistics():
     if request.method == "POST":
-        invoice_count = request.form.get("invoice_count")
-        postgres_processor, mongodb_processor = instantiate_processors()
-        queries = []  # TODO: load queries
-        results = []
-        for query in queries:
-            postgres_binary_time = postgres_processor.run_query(query)
-            postgres_time = postgres_processor.run_query(query)
-            mongodb_time = mongodb_processor.run_query(query)
-
-            query_type = ""
-            result = ResultDto(query_type, postgres_time, postgres_binary_time, mongodb_time)
-            results.append(result)
+        invoice_count = int(request.form.get("invoice_count"))
+        results = run_queries(invoice_count)
         return render_template("statistics.html", statistics=results)
 
     return render_template("statistics.html")

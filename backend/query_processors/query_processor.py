@@ -17,11 +17,13 @@ class QueryProcessor(ABC):
         self.parser.read("../config.ini")
 
     @abstractmethod
-    def run_query(self, query, params=None):
+    def run_query(self, query, params=None, **kwargs) -> float:
         """
         Runs a query with given parameters
         :param query: a query to be run
         :param params: an optional parameter of query parameters
+        :param kwargs: additional parameters
+        :return: the run time of the query
         """
 
         raise NotImplementedError
