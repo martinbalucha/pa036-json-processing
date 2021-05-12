@@ -14,9 +14,9 @@
         {"query": "DELETE FROM public.invoice WHERE (data ->>'includingTax')::boolean is true AND (data ->>'priceWithoutTax')::int > 8000;"}
       ],
       "UPDATES": [
-        {"query": "UPDATE public.invoice_binary SET data=jsonb_set(data::jsonb, '{additionalInformation}'::text[], '\"Tax not included\"'::jsonb) WHERE (data ->> 'includingTax') ::boolean is true;"},
-        {"query": "UPDATE public.invoice_binary SET data=jsonb_set(data::jsonb, '{totalPrice}'::text[], (COALESCE(data->>'totalPrice','')::int + 5000)::text::jsonb) WHERE (data ->> 'includingTax') ::boolean is true;"},
-        {"query": "UPDATE public.invoice SET data = jsonb_set(data::jsonb, '{includingTax}'::text[], (((true)::boolean)::text)::jsonb) FROM (SELECT (data->>'totalPrice')::int as price FROM public.invoice) as max_price WHERE price > 99000;"}
+        {"query": "UPDATE public.invoice SET data=jsonb_set(data::jsonb, '{additionalInformation}'::text[], '\"Tax not included\"'::jsonb) WHERE (data ->> 'includingTax') ::boolean is false;"},
+        {"query": "UPDATE public.invoice SET data=jsonb_set(data::jsonb, '{totalPrice}'::text[], (COALESCE(data->>'totalPrice','')::int + 5000)::text::jsonb) WHERE (data ->> 'includingTax') ::boolean is true;"},
+        {"query": "UPDATE public.invoice SET data = jsonb_set(jsonb_set(data::jsonb, '{issueTime}'::text[], '\"12:00:00\"'::jsonb)::jsonb, '{additionalInformation}'::text[], '\"ARCHIVED\"'::jsonb) WHERE (data->>'issueDate') < '2015' ;"}
       ]
     },
     "invoice_binary": {
