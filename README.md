@@ -23,3 +23,6 @@ pip install -r requirements.txt
 
 In PyCharm, select the desired interpreter:
 > \pa036-json-processing\.env\Scripts\python.exe
+ 
+Finally, select script path to app.py and run the script.
+
