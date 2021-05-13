@@ -94,7 +94,7 @@
   },
   "DELETE": {
     "postgres": "DELETE FROM invoice",
-    "postgres_binary": "DELETE FROM invoice",
+    "postgres_binary": "DELETE FROM invoice_binary",
     "mongodb": "delete_many",
     "description": "Deletes records from all tables. Designed for testing purposes"
   }
