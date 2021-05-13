@@ -21,6 +21,8 @@ python -m venv .env
 pip install -r requirements.txt
 ```
 
+Furthermore, you need to have PostgreSQL 13.2 and MongoDB installed. The Postgres database that will be used has to have two tables - *invoice* and *invoice_binary*. Both tables have attribute *id* of type *bigserial*. Additionally, both tables have the attribute *data*. In the first case, its type is *json*, in the second case it is *jsonb*. The MongoDB collection has to be called *invoice*. Connection details for can be specified in the file *config.ini*. 
+
 In PyCharm, select the desired interpreter:
 > \pa036-json-processing\.env\Scripts\python.exe
  
