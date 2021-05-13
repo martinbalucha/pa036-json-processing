@@ -65,6 +65,16 @@
           "description": "Select customer details and item's description where at least one bought item was more expensive than 8500"}
       ]
     },
+    "SELECT_MAX": {
+      "queries": [
+        {"raw": "db.invoices_table.find({\"customerDetails.city\": \"Praha\"}, {\"totalPrice\":1}).sort({\"totalPrice\":-1}).limit(1)",
+          "filter": "{\"customerDetails.city\": \"Praha\"}, {\"totalPrice\":1}",
+          "sort": "{\"totalPrice\":-1}",
+          "limit": 1,
+          "description": "Select maximum total price of a customer from Praha city"
+        }
+      ]
+    },
     "UPDATES": {
       "queries": [
         {"raw": "db.invoices_table.updateMany({\"includingTax\":false},{\"$set\":{\"additionalInformation\":\"Tax Not Included\"}})",
