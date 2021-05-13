@@ -8,11 +8,20 @@
         {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name",
           "description": "Select name and country of the customer who paid tax"},
         {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice) AS x WHERE x.price > 8500",
-          "description": "Select customer details and item's description where at least one bought item was more expensive than 8500"}
+          "description": "Select customer details and item's description where at least one bought item was more expensive than 8500"},
+        {"query": "SELECT MAX(x.tp) FROM (SELECT (data->>'totalPrice')::int AS tp, data->'customerDetails'->>'city' as c FROM public.invoice) AS x WHERE x.c LIKE '%Praha"}
       ],
       "INDEXES": "",
-      "DELETES": [],
-      "UPDATES": []
+      "DELETES": [
+        {"query": "DELETE FROM public.invoice WHERE (data -> 'issuerDetails' ->>'country') LIKE '%Spojené státy americké'"},
+        {"query": "DELETE FROM public.invoice WHERE id in (SELECT id from (SELECT id, (json_array_elements(data->'description') ->> 'price')::int as price FROM public.invoice) as id_and_prices WHERE price < 4500)"},
+        {"query": "DELETE FROM public.invoice WHERE (data ->>'includingTax')::boolean is true AND (data ->>'priceWithoutTax')::int > 8000;"}
+      ],
+      "UPDATES": [
+        {"query": "UPDATE public.invoice SET data=jsonb_set(data::jsonb, '{additionalInformation}'::text[], '\"Tax not included\"'::jsonb) WHERE (data ->> 'includingTax') ::boolean is false;"},
+        {"query": "UPDATE public.invoice SET data=jsonb_set(data::jsonb, '{totalPrice}'::text[], (COALESCE(data->>'totalPrice','')::int + 5000)::text::jsonb) WHERE (data ->> 'includingTax') ::boolean is true;"},
+        {"query": "UPDATE public.invoice SET data = jsonb_set(jsonb_set(data::jsonb, '{issueTime}'::text[], '\"12:00:00\"'::jsonb)::jsonb, '{additionalInformation}'::text[], '\"ARCHIVED\"'::jsonb) WHERE (data->>'issueDate') < '2015' ;"}
+      ]
     },
     "invoice_binary": {
       "INSERTS": "INSERT INTO invoice_binary (data) VALUES %s",
@@ -22,12 +31,21 @@
         {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice_binary WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name",
           "description": "Select name and country of the customer who paid tax"},
         {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice_binary) AS x WHERE x.price > 8500",
-          "description": "Select customer details and item's description where at least one bought item was more expensive than 8500"}
+          "description": "Select customer details and item's description where at least one bought item was more expensive than 8500"},
+        {"query": "SELECT MAX(x.tp) FROM (SELECT (data->>'totalPrice')::int AS tp, data->'customerDetails'->>'city' as c FROM public.invoice_binary) AS x WHERE x.c LIKE '%Praha"}
       ],
       "INDEXES": "CREATE INDEX jsonbIndex ON invoice_binary USING gin (data)",
       "DROP_INDEXES": "DROP INDEX jsonbIndex",
-      "DELETES": [],
-      "UPDATES": []
+      "DELETES": [
+        {"query": "DELETE FROM public.invoice_binary WHERE (data -> 'issuerDetails' ->>'country') LIKE '%Spojené státy americké'"},
+        {"query": "DELETE FROM public.invoice_binary WHERE id in (SELECT id from (SELECT id, (json_array_elements(data->'description') ->> 'price')::int as price FROM public.invoice) as id_and_prices WHERE price < 4500)"},
+        {"query": "DELETE FROM public.invoice_binary WHERE (data ->>'includingTax')::boolean is true AND (data ->>'priceWithoutTax')::int > 8000;"}
+      ],
+      "UPDATES": [
+        {"query": "UPDATE public.invoice_binary SET data=jsonb_set(data::jsonb, '{additionalInformation}'::text[], '\"Tax not included\"'::jsonb) WHERE (data ->> 'includingTax') ::boolean is true;"},
+        {"query": "UPDATE public.invoice_binary SET data = jsonb_set(jsonb_set(data #- '{description,-1}', '{description,1}', '{\"price\": 0, \"itemName\": \"FREE_GIFT\", \"catalogId\": \"007\"}', true), '{additionalInformation}', '\"GIFTED\"') WHERE (data ->> 'totalPrice')::int > 100000;"},
+        {"query": "UPDATE public.invoice_binary SET data=jsonb_set(data::jsonb, '{totalPrice}'::text[], (COALESCE(data->>'totalPrice','')::int + 5000)::text::jsonb) WHERE (data ->> 'includingTax') ::boolean is true;"}
+      ]
     }
   },
   "mongo": {
