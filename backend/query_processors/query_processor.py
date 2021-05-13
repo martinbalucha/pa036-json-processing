@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from configparser import ConfigParser
+from pathlib import Path
 
 
 class QueryProcessor(ABC):
@@ -14,7 +15,8 @@ class QueryProcessor(ABC):
         """
 
         self.parser = ConfigParser()
-        self.parser.read("../config.ini")
+        path = Path(__file__).resolve().parent.joinpath("..", "..", "config.ini")
+        self.parser.read(path)
 
     @abstractmethod
     def run_query(self, query, params=None, **kwargs) -> float:

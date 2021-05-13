@@ -29,7 +29,9 @@ class MongoDbProcessor(QueryProcessor):
         table = database["invoice"]
 
         if query == "find":
-            count = kwargs.get("query_json")["count"]
+            count = False
+            if kwargs.get("query_json") is not None:
+                count = kwargs.get("query_json")["count"]
             params = json.loads(params)
             return self._run_find(table, params, count)
         elif query == "update_many":
@@ -41,7 +43,7 @@ class MongoDbProcessor(QueryProcessor):
         if operation is None:
             raise ValueError(f"Mongo Client does not provide method {query}")
 
-        if params is not None and query != "insert_many":
+        if params is not None and query not in ["insert_many", "create_index"]:
             params = json.loads(params)
 
         start_time = time()
@@ -65,7 +67,7 @@ class MongoDbProcessor(QueryProcessor):
             return end_time - start_time
 
         start_time = time()
-        table.find(parameters)
+        result = table.find(parameters)
         end_time = time()
         return end_time - start_time
 
