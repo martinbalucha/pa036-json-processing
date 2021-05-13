@@ -1,0 +1,92 @@
+{
+  "queries": [{
+    "postgres": "INSERT INTO invoice (data) VALUES %s",
+    "postgres_binary": "INSERT INTO invoice_binary (data) VALUES %s",
+    "mongodb": "insert_many",
+    "filter": "",
+    "description": "Insert"
+  }, {
+    "postgres": "SELECT count(*) FROM public.invoice_binary WHERE id in (SELECT id FROM public.invoice_binary WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))",
+    "postgres_binary": "SELECT count(*) FROM public.invoice_binary WHERE id in (SELECT id FROM public.invoice_binary WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))",
+    "mongodb": "find",
+    "filter": "{\"issuerDetails.city\":\"Brno\"}",
+    "count": true,
+    "description": "Selects the number invoices issued in Brno"
+  }, {
+    "postgres": "SELECT * FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name",
+    "postgres_binary": "SELECT * FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice_binary WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name",
+    "mongodb": "find",
+    "filter": "{\"includingTax\":true}",
+    "count": false,
+    "description": "Group by query"
+  }, {
+    "postgres": "SELECT * FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice) AS x WHERE x.price > 8500",
+    "postgres_binary": "SELECT * FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (jsonb_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice_binary) AS x WHERE x.price > 8500",
+    "mongodb": "find",
+    "filter": "{\"description.price\": {\"$gt\":8500}}",
+    "count": true,
+    "description": "Select with price higher than 8500"
+  }, {
+    "postgres": "UPDATE public.invoice SET data=jsonb_set(data::jsonb, '{additionalInformation}'::text[], '\"Tax not included\"'::jsonb) WHERE (data ->> 'includingTax') ::boolean is false;",
+    "postgres_binary": "UPDATE public.invoice_binary SET data=jsonb_set(data::jsonb, '{additionalInformation}'::text[], '\"Tax not included\"'::jsonb) WHERE (data ->> 'includingTax') ::boolean is false;",
+    "mongodb": "update_many",
+    "filter": "{\"includingTax\":false}",
+    "update": "{\"$set\":{\"additionalInformation\":\"Tax Not Included\"}}",
+    "description": "Update additional info to 'Tax Not Included' for invoices without tax"
+  }, {
+    "postgres": "UPDATE public.invoice SET data=jsonb_set(data::jsonb, '{totalPrice}'::text[], (COALESCE(data->>'totalPrice','')::int + 5000)::text::jsonb) WHERE (data ->> 'includingTax') ::boolean is true;",
+    "postgres_binary": "UPDATE public.invoice_binary SET data=jsonb_set(data::jsonb, '{totalPrice}'::text[], (COALESCE(data->>'totalPrice','')::int + 5000)::text::jsonb) WHERE (data ->> 'includingTax') ::boolean is true;",
+    "mongodb": "update_many",
+    "filter": "{\"includingTax\":true}",
+    "update": "{\"$inc\":{\"totalPrice\":5000}}",
+    "description": "Update price by 5000 of all invoices with tax"
+  },{
+    "postgres": "UPDATE public.invoice SET data = jsonb_set(jsonb_set(data::jsonb, '{issueTime}'::text[], '\"12:00:00\"'::jsonb)::jsonb, '{additionalInformation}'::text[], '\"ARCHIVED\"'::jsonb) WHERE (data->>'issueDate') < '2015';",
+    "postgres_binary": "UPDATE public.invoice_binary SET data = jsonb_set(jsonb_set(data #- '{description,-1}', '{description,1}', '{\"price\": 0, \"itemName\": \"FREE_GIFT\", \"catalogId\": \"007\"}', true), '{additionalInformation}', '\"GIFTED\"') WHERE (data ->> 'totalPrice')::int > 100000;",
+    "mongodb": "update_many",
+    "filter": "{\"issueDate\": {\"$lt\":\"2015\"}}",
+    "update": "{\"$set\": {\"issueTime\": \"12:00:00\", \"additionalInformation\":\"ARCHIVED\"}}",
+    "description": "Update issue time of invoices issued before 2015 to 12:00:00 and additionalInformation to ARCHIVED"
+  }, {
+    "postgres": "DELETE FROM public.invoice WHERE (data -> 'issuerDetails' ->>'country') LIKE '%Spojené státy americké'",
+    "postgres_binary": "DELETE FROM public.invoice_binary WHERE (data -> 'issuerDetails' ->>'country') LIKE '%Spojené státy americké'",
+    "mongodb": "delete_many",
+    "filter": "{\"issuerDetails.country\": \"Spojené státy americké\"}",
+    "description": "Delete invoices issued in the USA"
+  }, {
+    "postgres": "DELETE FROM public.invoice WHERE id in (SELECT id from (SELECT id, (json_array_elements(data->'description') ->> 'price')::int as price FROM public.invoice) as id_and_prices WHERE price < 4500)",
+    "postgres_binary": "DELETE FROM public.invoice_binary WHERE id in (SELECT id from (SELECT id, (jsonb_array_elements(data->'description') ->> 'price')::int as price FROM public.invoice_binary) as id_and_prices WHERE price < 4500)",
+    "mongodb": "delete_many",
+    "filter": "{\"description.price\": {\"$lt\":4500}}",
+    "description": "Delete invoices with total price lower than 4500"
+  }, {
+    "postgres": "DELETE FROM public.invoice WHERE (data ->>'includingTax')::boolean is true AND (data ->>'priceWithoutTax')::int > 8000;",
+    "postgres_binary": "DELETE FROM public.invoice_binary WHERE (data ->>'includingTax')::boolean is true AND (data ->>'priceWithoutTax')::int > 8000;",
+    "mongodb": "delete_many",
+    "filter": "{\"includingTax\": true, \"priceWithoutTax\": {\"$gt\":8000}}",
+    "description": "Delete invoices with price higher than 8000"
+  }
+  ],
+  "INDEX": {
+    "postgres_binary": "CREATE INDEX jsonbIndex ON invoice_binary USING gin (data)",
+    "mongodb": "create_index",
+    "filter": "id",
+    "description": "Select with price higher than 8500"
+  },
+  "DROP_INDEX":{
+    "postgres_binary": "DROP INDEX jsonbIndex",
+    "mongodb": "drop_index",
+    "filter": "id_1"
+  },
+  "DELETE": {
+    "postgres": "DELETE FROM invoice",
+    "postgres_binary": "DELETE FROM invoice",
+    "mongodb": "delete_many",
+    "description": "Deletes records from all tables. Designed for testing purposes"
+  }
+}
+
+
+
+
+

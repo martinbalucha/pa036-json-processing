@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from configparser import ConfigParser
+from pathlib import Path
 
 
 class QueryProcessor(ABC):
@@ -14,14 +15,17 @@ class QueryProcessor(ABC):
         """
 
         self.parser = ConfigParser()
-        self.parser.read("../config.ini")
+        path = Path(__file__).resolve().parent.joinpath("..", "..", "config.ini")
+        self.parser.read(path)
 
     @abstractmethod
-    def run_query(self, query, params=None):
+    def run_query(self, query, params=None, **kwargs) -> float:
         """
         Runs a query with given parameters
         :param query: a query to be run
         :param params: an optional parameter of query parameters
+        :param kwargs: additional parameters
+        :return: the run time of the query
         """
 
         raise NotImplementedError

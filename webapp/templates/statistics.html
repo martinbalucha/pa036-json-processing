@@ -12,6 +12,9 @@
                     <a href="{{ url_for('statistics.drop_indices') }}">
                         <button type="button" class="btn btn-info">Drop indices</button>
                     </a>
+                    <a href="{{ url_for('statistics.delete_all') }}">
+                        <button type="button" class="btn btn-info">Delete all data</button>
+                    </a>
                 </div>
 
                 <div class="form-group">
@@ -25,26 +28,28 @@
                 <button type="submit" class="btn btn-success">Run queries</button>
 
                 {% if statistics and statistics|length > 0 %}
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">Query type</th>
-                                <th scope="col">Postgres json time</th>
-                                <th scope="col">Postgres jsonb time</th>
-                                <th scope="col">MongoDB json time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for statistic in statistics %}
+                    <div class="form-group">
+                        <table class="table table-hover">
+                            <thead>
                                 <tr>
-                                    <td>{{ statistic.query_type }}</td>
-                                    <td>{{ statistic.postgres_json_time }}</td>
-                                    <td>{{ statistic.postgres_jsonb_time }}</td>
-                                    <td>{{ statistic.mongodb_time }}</td>
+                                    <th scope="col">Query type</th>
+                                    <th scope="col">Postgres json time</th>
+                                    <th scope="col">Postgres jsonb time</th>
+                                    <th scope="col">MongoDB json time</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {% for statistic in statistics %}
+                                    <tr>
+                                        <td>{{ statistic.query_type }}</td>
+                                        <td>{{ statistic.postgres_json_time }}</td>
+                                        <td>{{ statistic.postgres_jsonb_time }}</td>
+                                        <td>{{ statistic.mongodb_time }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% endif %}
             </fieldset>
         </form>
