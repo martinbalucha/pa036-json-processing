@@ -43,7 +43,7 @@ class MongoDbProcessor(QueryProcessor):
         if operation is None:
             raise ValueError(f"Mongo Client does not provide method {query}")
 
-        if params is not None and query not in ["insert_many", "create_index"]:
+        if params is not None and query not in ["insert_many", "create_index", "drop_index"]:
             params = json.loads(params)
 
         start_time = time()

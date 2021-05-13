@@ -24,7 +24,7 @@ def display_statistics():
 @statistics.route("/create_indices", methods=["GET"])
 def create_indices():
     manage_indices(True)
-    flash("Indices successfully established!", "success")
+    flash("Indices successfully created!", "success")
     return redirect(url_for("statistics.display_statistics"))
 
 
