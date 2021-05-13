@@ -26,3 +26,4 @@ In PyCharm, select the desired interpreter:
  
 Finally, select script path to app.py and run the script.
 
+Note: it is needed to have at least 16 GB RAM for the purposes of inserting 1M records due to the JSON loading
