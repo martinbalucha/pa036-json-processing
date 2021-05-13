@@ -1,4 +1,5 @@
 import json
+from bson import json_util
 from time import time
 from backend.query_processors.query_processor import QueryProcessor
 
@@ -29,11 +30,8 @@ class MongoDbProcessor(QueryProcessor):
         table = database["invoice"]
 
         if query == "find":
-            count = False
-            if kwargs.get("query_json") is not None:
-                count = kwargs.get("query_json")["count"]
-            params = json.loads(params)
-            return self._run_find(table, params, count)
+            params = json_util.loads(params)
+            return self._run_find(table, params, query_json=kwargs.get("query_json"))
         elif query == "update_many":
             update = json.loads(kwargs.get("query_json")["update"])
             params = json.loads(params)
@@ -51,18 +49,34 @@ class MongoDbProcessor(QueryProcessor):
         end_time = time()
         return end_time - start_time
 
-    def _run_find(self, table, parameters, count=False) -> float:
+    def _run_find(self, table, parameters, **kwargs) -> float:
         """
         Runs find command
         :param table: the table on which the query will run
         :param parameters: find condition
-        :param count: optional parameter denoting that the count function should be used
+        :param kwargs: parameters specifying additional operations
         :return: run time of the find query
         """
 
-        if count:
+        query_json = kwargs.get("query_json")
+        if query_json["count"]:
             start_time = time()
             table.find(parameters).count()
+            end_time = time()
+            return end_time - start_time
+        elif "projection" in query_json:
+            projection = json.loads(query_json["projection"])
+            if "limit" in query_json:
+                sort_argument = query_json["sort"]["key"]
+                sort_direction = query_json["sort"]["direction"]
+                limit_argument = int(query_json["limit"])
+                start_time = time()
+                table.find(parameters, projection).sort(sort_argument, sort_direction).limit(limit_argument)
+                end_time = time()
+                return end_time - start_time
+
+            start_time = time()
+            table.find(parameters, projection)
             end_time = time()
             return end_time - start_time
 

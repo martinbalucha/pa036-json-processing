@@ -16,7 +16,7 @@ def display_statistics():
     if request.method == "POST":
         invoice_count = int(request.form.get("invoice_count"))
         results = run_queries(invoice_count)
-        return render_template("statistics.html", statistics=results)
+        return render_template("statistics.html", statistics=results, invoice_count=invoice_count)
 
     return render_template("statistics.html")
 
@@ -24,7 +24,7 @@ def display_statistics():
 @statistics.route("/create_indices", methods=["GET"])
 def create_indices():
     manage_indices(True)
-    flash("Indices successfully created!", "success")
+    flash("Indices successfully established!", "success")
     return redirect(url_for("statistics.display_statistics"))
 
 
