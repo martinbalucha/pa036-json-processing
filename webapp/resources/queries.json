@@ -5,7 +5,8 @@
       "SELECTS": [
         {"query": "SELECT count(*) FROM public.invoice WHERE id in (SELECT id FROM public.invoice WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))", "description": "Select number 1"},
         {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name", "description": "Select number 2"},
-        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice) AS x WHERE x.price > 8500", "description": "Select number 3"}
+        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice) AS x WHERE x.price > 8500", "description": "Select number 3"},
+        {"query": "SELECT MAX(x.tp) FROM (SELECT (data->>'totalPrice')::int AS tp, data->'customerDetails'->>'city' as c FROM public.invoice) AS x WHERE x.c LIKE '%Praha"}
       ],
       "INDEXES": "",
       "DELETES": [
@@ -24,7 +25,8 @@
       "SELECTS": [
         {"query": "SELECT count(*) FROM public.invoice_binary WHERE id in (SELECT id FROM public.invoice_binary WHERE (data -> 'issuerDetails' ->> 'city' LIKE '%Brno'))", "description": "Select number 1"},
         {"query": "SELECT x.country, x.name FROM (SELECT data->'customerDetails'->>'country' as country, data->'customerDetails'->>'name' as name FROM public.invoice_binary WHERE (data ->> 'includingTax')::boolean is true) as x group by x.country, x.name", "description": "Select number 2"},
-        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice_binary) AS x WHERE x.price > 8500", "description": "Select number 3"}
+        {"query": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice_binary) AS x WHERE x.price > 8500", "description": "Select number 3"},
+        {"query": "SELECT MAX(x.tp) FROM (SELECT (data->>'totalPrice')::int AS tp, data->'customerDetails'->>'city' as c FROM public.invoice_binary) AS x WHERE x.c LIKE '%Praha"}
       ],
       "INDEXES": "CREATE INDEX jsonbIndex ON invoice_binary USING gin (data)",
       "DROP_INDEXES": "DROP INDEX jsonbIndex",
