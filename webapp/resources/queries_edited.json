@@ -18,14 +18,28 @@
     "mongodb": "find",
     "filter": "{\"includingTax\":true}",
     "count": false,
-    "description": "Group by query"
+    "description": "Select all invoices with paid tax"
   }, {
-    "postgres": "SELECT * FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice) AS x WHERE x.price > 8500",
-    "postgres_binary": "SELECT * FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (jsonb_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice_binary) AS x WHERE x.price > 8500",
+    "postgres": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (json_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice) AS x WHERE x.price > 8500",
+    "postgres_binary": "SELECT x.cd, x.d FROM (SELECT data->'customerDetails' AS cd, data->'description' AS d, (jsonb_array_elements(data->'description') ->> 'price')::int AS price FROM public.invoice_binary) AS x WHERE x.price > 8500",
     "mongodb": "find",
     "filter": "{\"description.price\": {\"$gt\":8500}}",
-    "count": true,
-    "description": "Select with price higher than 8500"
+    "count": false,
+    "projection": "{\"customerDetails\":1, \"description\":1}",
+    "description": "Select info for invoices more expensive than 8500"
+  }, {
+    "postgres": "SELECT MAX(x.tp) FROM (SELECT (data->>'totalPrice')::int AS tp, data->'customerDetails'->>'city' as c FROM public.invoice) AS x WHERE x.c LIKE '%Praha'",
+    "postgres_binary": "SELECT MAX(x.tp) FROM (SELECT (data->>'totalPrice')::int AS tp, data->'customerDetails'->>'city' as c FROM public.invoice_binary) AS x WHERE x.c LIKE '%Praha'",
+    "mongodb": "find",
+    "filter": "{\"customerDetails.city\": \"Praha\"}",
+    "projection": "{\"totalPrice\":1}",
+    "sort": {
+      "key": "totalPrice",
+      "direction": -1
+    },
+    "limit": 1,
+    "count": false,
+    "description": "Select maximum total price of a customer from Praha"
   }, {
     "postgres": "UPDATE public.invoice SET data=jsonb_set(data::jsonb, '{additionalInformation}'::text[], '\"Tax not included\"'::jsonb) WHERE (data ->> 'includingTax') ::boolean is false;",
     "postgres_binary": "UPDATE public.invoice_binary SET data=jsonb_set(data::jsonb, '{additionalInformation}'::text[], '\"Tax not included\"'::jsonb) WHERE (data ->> 'includingTax') ::boolean is false;",
