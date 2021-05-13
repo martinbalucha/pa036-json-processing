@@ -49,6 +49,7 @@ class MongoDbProcessor(QueryProcessor):
         end_time = time()
         return end_time - start_time
 
+
     def _run_find(self, table, parameters, **kwargs) -> float:
         """
         Runs find command
@@ -79,6 +80,7 @@ class MongoDbProcessor(QueryProcessor):
             table.find(parameters, projection)
             end_time = time()
             return end_time - start_time
+
 
         start_time = time()
         result = table.find(parameters)
