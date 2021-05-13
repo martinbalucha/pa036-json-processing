@@ -28,6 +28,7 @@
                 <button type="submit" class="btn btn-success">Run queries</button>
 
                 {% if statistics and statistics|length > 0 %}
+                    <h3>Statistics for {{ invoice_count }} invoices</h3>
                     <div class="form-group">
                         <table class="table table-hover">
                             <thead>
@@ -41,10 +42,11 @@
                             <tbody>
                                 {% for statistic in statistics %}
                                     <tr>
+                                        {% set quickest = [statistic.postgres_json_time, statistic.postgres_jsonb_time, statistic.mongodb_time] | min %}
                                         <td>{{ statistic.query_type }}</td>
-                                        <td>{{ statistic.postgres_json_time }}</td>
-                                        <td>{{ statistic.postgres_jsonb_time }}</td>
-                                        <td>{{ statistic.mongodb_time }}</td>
+                                        <td {% if quickest == statistic.postgres_json_time %} class="table-success" {% endif %}>{{ statistic.postgres_json_time|round(10)}}</td>
+                                        <td {% if quickest == statistic.postgres_jsonb_time %} class="table-success" {% endif %}>{{ statistic.postgres_jsonb_time|round(10) }}</td>
+                                        <td {% if quickest == statistic.mongodb_time %} class="table-success" {% endif %}>{{ statistic.mongodb_time|round(10) }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
